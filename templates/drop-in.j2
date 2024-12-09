@@ -1,0 +1,109 @@
+{{ ansible_managed | comment }}
+[Resolve]
+{% if item.dns is defined and
+      item.dns is iterable and
+      item.dns | length > 0 %}
+    {% if item.dns is not string and
+       item.dns is not mapping %}
+DNS={{ item.dns | join(" ") }}
+    {% else %}
+DNS={{ item.dns }}
+    {% endif %}
+{% endif %}
+{% if item.fallback_dns is defined and
+      item.fallback_dns is iterable and
+      item.fallback_dns | length > 0 %}
+    {% if item.fallback_dns is not string and
+       item.fallback_dns is not mapping %}
+FallbackDNS={{ item.fallback_dns | join(" ") }}
+    {% else %}
+FallbackDNS={{ item.fallback_dns }}
+    {% endif %}
+{% endif %}
+{% if item.domains is defined and
+      item.domains is iterable and
+      item.domains | length > 0 %}
+    {% if item.domains is not string and
+       item.domains is not mapping %}
+Domains={{ item.domains | join(" ") }}
+    {% else %}
+Domains={{ item.domains }}
+    {% endif %}
+{% endif %}
+{% if item.dnssec is defined and
+      item.dnssec != None %}
+  {% if item.dnssec is boolean %}
+DNSSEC={{ item.dnssec | ternary('yes', 'no') }}
+  {% else %}
+DNSSEC={{ item.dnssec }}
+  {% endif %}
+{% endif %}
+{% if item.dns_over_tls is defined and
+      item.dns_over_tls != None %}
+  {% if item.dns_over_tls is boolean %}
+DNSOverTLS={{ item.dns_over_tls | ternary('yes', 'no') }}
+  {% else %}
+DNSOverTLS={{ item.dns_over_tls }}
+  {% endif %}
+{% endif %}
+{% if item.multicast_dns is defined and
+      item.multicast_dns != None %}
+  {% if item.multicast_dns is boolean %}
+MulticastDNS={{ item.multicast_dns | ternary('yes', 'no') }}
+  {% else %}
+MulticastDNS={{ item.multicast_dns }}
+  {% endif %}
+{% endif %}
+{% if item.llmnr is defined and
+      item.llmnr != None %}
+  {% if item.llmnr is boolean %}
+LLMNR={{ item.llmnr | ternary('yes', 'no') }}
+  {% else %}
+LLMNR={{ item.llmnr }}
+  {% endif %}
+{% endif %}
+{% if item.cache is defined and
+      item.cache != None %}
+  {% if item.cache is boolean %}
+Cache={{ item.cache | ternary('yes', 'no') }}
+  {% else %}
+Cache={{ item.cache }}
+  {% endif %}
+{% endif %}
+{% if item.cache_from_localhost is defined and
+      item.cache_from_localhost != None %}
+  {% if item.cache_from_localhost is boolean %}
+CacheFromLocalhost={{ item.cache_from_localhost | ternary('yes', 'no') }}
+  {% else %}
+CacheFromLocalhost={{ item.cache_from_localhost }}
+  {% endif %}
+{% endif %}
+{% if item.dns_stub_listener is defined and
+      item.dns_stub_listener != None %}
+  {% if item.dns_stub_listener is boolean %}
+DNSStubListener={{ item.dns_stub_listener | ternary('yes', 'no') }}
+  {% else %}
+DNSStubListener={{ item.dns_stub_listener }}
+  {% endif %}
+{% endif %}
+{% if item.dns_stub_listener_extra is defined and
+      item.dns_stub_listener_extra is iterable and
+      item.dns_stub_listener_extra is not string and
+      item.dns_stub_listener_extra is not mapping and
+      item.dns_stub_listener_extra | length > 0 %}
+    {%- for item in item.dns_stub_listener_extra %}
+DNSStubListenerExtra={{ item }}
+    {% endfor %}
+{% endif %}
+{% if item.read_etc_hosts is defined and
+      item.read_etc_hosts is boolean %}
+ReadEtcHosts={{ item.read_etc_hosts }}
+{% endif %}
+{% if item.resolve_unicast_single_label is defined and
+      item.resolve_unicast_single_label is boolean %}
+ResolveUnicastSingleLabel={{ item.resolve_unicast_single_label }}
+{% endif %}
+{% if item.stale_retention_sec is defined and
+      item.stale_retention_sec is integer %}
+StaleRetentionSec={{ item.stale_retention_sec }}
+{% endif %}

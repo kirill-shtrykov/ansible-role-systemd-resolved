@@ -1,0 +1,98 @@
+---
+- name: Configure SystemD ResolveD
+  block:
+    - name: Ensure SystemD is installed
+      ansible.builtin.package:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - systemd
+        - systemd-resolved
+      tags: systemd_resolved_install
+
+    - name: Ensure systemd-resolved enabled
+      ansible.builtin.service:
+        name: systemd-resolved
+        enabled: true
+
+    - name: Ensure drop-ins directory exists
+      ansible.builtin.file:
+        path: "/etc/systemd/resolved.conf.d"
+        state: directory
+        mode: "0755"
+      tags: systemd_resolved_config
+
+    - name: Create main configuration file
+      ansible.builtin.template:
+        src: resolved.conf.j2
+        dest: /etc/systemd/resolved.conf
+        mode: "0644"
+        lstrip_blocks: true
+      notify: Restart systemd-resolved service
+      tags: systemd_resolved_config
+
+
+    - name: Unmount resolv.conf if running in container
+      ansible.posix.mount:
+        path: /etc/resolv.conf
+        state: unmounted
+      when: ansible_mounts | selectattr('mount', 'equalto', '/etc/resolv.conf') | length
+
+    - name: Get resolv.conf stat
+      ansible.builtin.stat:
+        path: /etc/resolv.conf
+        get_checksum: false
+        get_mime: false
+      register: __systemd_resolved_resolv_conf
+      tags: systemd_resolved_resolv_conf_link
+
+    - name: Remove resolv.conf file
+      ansible.builtin.file:
+        path: /etc/resolv.conf
+        state: absent
+      when: not __systemd_resolved_resolv_conf.stat.islnk or
+            not __systemd_resolved_resolv_conf.stat.lnk_target == systemd_resolved_resolv_conf_link_target
+      tags: systemd_resolved_resolv_conf_link
+
+    - name: Create resolv.conf link
+      ansible.builtin.file:
+        src: "{{ systemd_resolved_resolv_conf_link_target }}"
+        dest: /etc/resolv.conf
+        state: link
+        force: true
+      tags: systemd_resolved_resolv_conf_link
+
+    - name: Generate resolved.conf.d files
+      ansible.builtin.template:
+        src: drop-in.j2
+        dest: "/etc/systemd/resolved.conf.d/{{ item.weight | default(60) }}-{{ item.name }}.conf"
+        mode: "0644"
+        lstrip_blocks: true
+      loop: "{{ systemd_resolved_dropins }}"
+      when:
+        - systemd_resolved_dropins is defined
+        - systemd_resolved_dropins is iterable
+        - systemd_resolved_dropins is not mapping
+        - systemd_resolved_dropins | length
+        - item.state is not defined or item.state == "present"
+      loop_control:
+        label: "{{ item.name }}"
+      notify: Restart systemd-resolved service
+      tags: systemd_resolved_config
+
+    - name: Remove resolved.conf.d files
+      ansible.builtin.file:
+        path: "/etc/systemd/resolved.conf.d/{{ item.weight | default(60) }}-{{ item.name }}.conf"
+        state: absent
+      loop: "{{ systemd_resolved_dropins }}"
+      when:
+        - systemd_resolved_dropins is defined
+        - systemd_resolved_dropins is iterable
+        - systemd_resolved_dropins is not mapping
+        - systemd_resolved_dropins | length
+        - item.state is defined
+        - item.state == "absent"
+      loop_control:
+        label: "{{ item.name }}"
+      notify: Restart systemd-resolved service
+      tags: systemd_resolved_config

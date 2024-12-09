@@ -1,0 +1,159 @@
+{{ ansible_managed | comment }}
+#  This file is part of systemd.
+#
+#  systemd is free software; you can redistribute it and/or modify it under the
+#  terms of the GNU Lesser General Public License as published by the Free
+#  Software Foundation; either version 2.1 of the License, or (at your option)
+#  any later version.
+#
+# Entries in this file show the compile time defaults. Local configuration
+# should be created by either modifying this file (or a copy of it placed in
+# /etc/ if the original file is shipped in /usr/), or by creating "drop-ins" in
+# the /etc/systemd/resolved.conf.d/ directory. The latter is generally
+# recommended. Defaults can be restored by simply deleting the main
+# configuration file and all drop-ins located in /etc/.
+#
+# Use 'systemd-analyze cat-config systemd/resolved.conf' to display the full config.
+#
+# See resolved.conf(5) for details.
+
+[Resolve]
+# Some examples of DNS servers which may be used for DNS= and FallbackDNS=:
+# Cloudflare: 1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com 2606:4700:4700::1001#cloudflare-dns.com
+# Google:     8.8.8.8#dns.google 8.8.4.4#dns.google 2001:4860:4860::8888#dns.google 2001:4860:4860::8844#dns.google
+# Quad9:      9.9.9.9#dns.quad9.net 149.112.112.112#dns.quad9.net 2620:fe::fe#dns.quad9.net 2620:fe::9#dns.quad9.net
+{% if systemd_resolved_dns is defined and
+      systemd_resolved_dns is iterable and
+      systemd_resolved_dns | length > 0 %}
+    {% if systemd_resolved_dns is not string and
+       systemd_resolved_dns is not mapping %}
+DNS={{ systemd_resolved_dns | join(" ") }}
+    {% else %}
+DNS={{ systemd_resolved_dns }}
+    {% endif %}
+{% else %}
+#DNS=
+{% endif %}
+{% if systemd_resolved_fallback_dns is defined and
+      systemd_resolved_fallback_dns is iterable and
+      systemd_resolved_fallback_dns | length > 0 %}
+    {% if systemd_resolved_fallback_dns is not string and
+       systemd_resolved_fallback_dns is not mapping %}
+FallbackDNS={{ systemd_resolved_fallback_dns | join(" ") }}
+    {% else %}
+FallbackDNS={{ systemd_resolved_fallback_dns }}
+    {% endif %}
+{% else %}
+#FallbackDNS=1.1.1.1#cloudflare-dns.com 9.9.9.9#dns.quad9.net 8.8.8.8#dns.google 2606:4700:4700::1111#cloudflare-dns.com 2620:fe::9#dns.quad9.net 2001:4860:4860::8888#dns.google
+{% endif %}
+{% if systemd_resolved_domains is defined and
+      systemd_resolved_domains is iterable and
+      systemd_resolved_domains | length > 0 %}
+    {% if systemd_resolved_domains is not string and
+       systemd_resolved_domains is not mapping %}
+Domains={{ systemd_resolved_domains | join(" ") }}
+    {% else %}
+Domains={{ systemd_resolved_domains }}
+    {% endif %}
+{% else %}
+#Domains=
+{% endif %}
+{% if systemd_resolved_dnssec is defined and
+      systemd_resolved_dnssec != None %}
+  {% if systemd_resolved_dnssec is boolean %}
+DNSSEC={{ systemd_resolved_dnssec | ternary('yes', 'no') }}
+  {% else %}
+DNSSEC={{ systemd_resolved_dnssec }}
+  {% endif %}
+{% else %}
+#DNSSEC=no
+{% endif %}
+{% if systemd_resolved_dns_over_tls is defined and
+      systemd_resolved_dns_over_tls != None %}
+  {% if systemd_resolved_dns_over_tls is boolean %}
+DNSOverTLS={{ systemd_resolved_dns_over_tls | ternary('yes', 'no') }}
+  {% else %}
+DNSOverTLS={{ systemd_resolved_dns_over_tls }}
+  {% endif %}
+{% else %}
+#DNSOverTLS=no
+{% endif %}
+{% if systemd_resolved_multicast_dns is defined and
+      systemd_resolved_multicast_dns != None %}
+  {% if systemd_resolved_multicast_dns is boolean %}
+MulticastDNS={{ systemd_resolved_multicast_dns | ternary('yes', 'no') }}
+  {% else %}
+MulticastDNS={{ systemd_resolved_multicast_dns }}
+  {% endif %}
+{% else %}
+#MulticastDNS=yes
+{% endif %}
+{% if systemd_resolved_llmnr is defined and
+      systemd_resolved_llmnr != None %}
+  {% if systemd_resolved_llmnr is boolean %}
+LLMNR={{ systemd_resolved_llmnr | ternary('yes', 'no') }}
+  {% else %}
+LLMNR={{ systemd_resolved_llmnr }}
+  {% endif %}
+{% else %}
+#LLMNR=yes
+{% endif %}
+{% if systemd_resolved_cache is defined and
+      systemd_resolved_cache != None %}
+  {% if systemd_resolved_cache is boolean %}
+Cache={{ systemd_resolved_cache | ternary('yes', 'no') }}
+  {% else %}
+Cache={{ systemd_resolved_cache }}
+  {% endif %}
+{% else %}
+#Cache=yes
+{% endif %}
+{% if systemd_resolved_cache_from_localhost is defined and
+      systemd_resolved_cache_from_localhost != None %}
+  {% if systemd_resolved_cache_from_localhost is boolean %}
+CacheFromLocalhost={{ systemd_resolved_cache_from_localhost | ternary('yes', 'no') }}
+  {% else %}
+CacheFromLocalhost={{ systemd_resolved_cache_from_localhost }}
+  {% endif %}
+{% else %}
+#CacheFromLocalhost=no
+{% endif %}
+{% if systemd_resolved_dns_stub_listener is defined and
+      systemd_resolved_dns_stub_listener != None %}
+  {% if systemd_resolved_dns_stub_listener is boolean %}
+DNSStubListener={{ systemd_resolved_dns_stub_listener | ternary('yes', 'no') }}
+  {% else %}
+DNSStubListener={{ systemd_resolved_dns_stub_listener }}
+  {% endif %}
+{% else %}
+#DNSStubListener=yes
+{% endif %}
+{% if systemd_resolved_dns_stub_listener_extra is defined and
+      systemd_resolved_dns_stub_listener_extra is iterable and
+      systemd_resolved_dns_stub_listener_extra is not string and
+      systemd_resolved_dns_stub_listener_extra is not mapping and
+      systemd_resolved_dns_stub_listener_extra | length > 0 %}
+    {%- for item in systemd_resolved_dns_stub_listener_extra %}
+DNSStubListenerExtra={{ item }}
+    {% endfor %}
+{% else %}
+#DNSStubListenerExtra=
+{% endif %}
+{% if systemd_resolved_read_etc_hosts is defined and
+      systemd_resolved_read_etc_hosts is boolean %}
+ReadEtcHosts={{ systemd_resolved_read_etc_hosts }}
+{% else %}
+#ReadEtcHosts=yes
+{% endif %}
+{% if systemd_resolved_resolve_unicast_single_label is defined and
+      systemd_resolved_resolve_unicast_single_label is boolean %}
+ResolveUnicastSingleLabel={{ systemd_resolved_resolve_unicast_single_label }}
+{% else %}
+#ResolveUnicastSingleLabel=no
+{% endif %}
+{% if systemd_resolved_stale_retention_sec is defined and
+      systemd_resolved_stale_retention_sec is integer %}
+StaleRetentionSec={{ systemd_resolved_stale_retention_sec }}
+{% else %}
+#StaleRetentionSec=0
+{% endif %}

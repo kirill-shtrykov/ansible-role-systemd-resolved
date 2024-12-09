@@ -1,8 +1,3 @@
-# ansible-role-systemd-resolved
-Ansible role configures SystemD Network Name Resolution manager
-
-# Usage
-```yaml
 ---
 # List of IPv4 and IPv6 addresses to use as system DNS servers.
 # This setting defaults to the empty list.
@@ -82,4 +77,3 @@ systemd_resolved_resolv_conf_link_target: /run/systemd/resolve/stub-resolv.conf
 #   state: present # Default - present
 #   dns: 127.0.0.1
 systemd_resolved_dropins: []
-```

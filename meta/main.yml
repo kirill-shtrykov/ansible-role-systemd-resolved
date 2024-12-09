@@ -1,0 +1,22 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: kirill-shtrykov
+  namespace: kirill_shtrykov
+  role_name: systemd_resolved
+  description: Configure systemd-resolved
+  license: MIT
+  min_ansible_version: 2.17.5
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm    # 12
+    - name: Rocky
+      versions:
+        - "9.0"
+  galaxy_tags:
+    - linux
+    - systemd
+    - dns
+    - network
