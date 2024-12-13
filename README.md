@@ -33,7 +33,6 @@ systemd_resolved_dns_over_tls: null
 # If set to "resolve", only resolution support is enabled, but responding is disabled.
 systemd_resolved_multicast_dns: null
 
-
 # Controls Link-Local Multicast Name Resolution support (RFC 4795[2]) on the local host.
 # Takes a boolean argument or "resolve".
 # If set to "resolve", only resolution support is enabled, but responding is disabled.
